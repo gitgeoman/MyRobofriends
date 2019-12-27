@@ -2,8 +2,7 @@ import React, {Component} from 'react';
 import CardList from '../components/CardList.js';
 import SearchBox from '../components/SearchBox.js';
 import Scroll from '../components/Scroll.js'
-
-//STATE - the object that describes your application. it can be changed. State should be described in parent
+import ErrorBoundry from '../components/errorBoundry.js'
 
 
 class App extends Component {
@@ -39,7 +38,9 @@ class App extends Component {
 					<h1 className='f1'>RoboFriends</h1>
 					<SearchBox searchChange={this.onSearchChange}/>
 					<Scroll>
+					<ErrorBoundry>
 						<CardList robots={filteredRobots}/>
+					</ErrorBoundry>
 					</Scroll>
 				</div>
 			);

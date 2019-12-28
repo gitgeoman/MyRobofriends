@@ -1,42 +1,47 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import CardList from '../components/CardList.js';
 import SearchBox from '../components/SearchBox.js';
 import Scroll from '../components/Scroll.js'
 import ErrorBoundry from '../components/errorBoundry.js'
 
+import {setSearchField, requestRobots} from '../actions'; 
+
+const mapStateToProps = state => {
+	return {
+		searchField: state.searchRobots.searchField, //calling the reducer atrotribute
+		robots: state.requestRobots.robots,
+		isPending: state.requestRobots.isPending,
+		error: state.requestRobots.error
+	}
+}
+
+const mapDispatchToProps = (dispatch) =>{
+	return {
+		onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+		onRequestRobots: ()=> dispatch(requestRobots())
+	}
+}
 
 class App extends Component {
-	
-	constructor(){
-		super() // wywolanie konstruktora dla Component
-		this.state={
-			robots: [],
-			searchfield: ''
-		} 
-	}
 
 	componentDidMount(){
-		fetch('https://jsonplaceholder.typicode.com/users')
-		.then(response=>{return response.json()})
-		.then(users=>{this.setState({robots:users})})
+		this.props.onRequestRobots();
 	}
 
-	onSearchChange=(event)=>{ //tutaj trzeba używać takiej składni żeby nie było problemu z dostępem do obiektu filtrowanie opisane w odc 208
-		//console.log(event.target.value);
-		this.setState({searchfield:event.target.value})
-		
-	};
 	render(){
-		const {robots, searchfield} =this.state;
+	
+		const {searchField, onSearchChange, robots, isPending} = this.props;
 		const filteredRobots=robots.filter((robot)=>{
-			return robot.name.toLowerCase().includes(searchfield.toLowerCase())
+			return robot.name.toLowerCase().includes(searchField.toLowerCase())
 		})
-		return !robots.length ?
+		return isPending ?
 			<h1>Loading</h1>:
 		(
 				<div className='tc'>
 					<h1 className='f1'>RoboFriends</h1>
-					<SearchBox searchChange={this.onSearchChange}/>
+					<SearchBox searchChange={ onSearchChange}/>
 					<Scroll>
 					<ErrorBoundry>
 						<CardList robots={filteredRobots}/>
@@ -44,8 +49,7 @@ class App extends Component {
 					</Scroll>
 				</div>
 			);
-		}
 	}
-
-
-export default App;
+}
+//connct to redux store
+export default connect(mapStateToProps, mapDispatchToProps)(App);
